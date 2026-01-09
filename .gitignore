@@ -1,0 +1,63 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+
+# Packaging
+build/
+dist/
+*.egg-info/
+
+# Test / type check / lint caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.tox/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Logs
+*.log
+
+# Office docs (often contain accidental sensitive info)
+*.xlsx
+*.xls
+*.docx
+*.doc
+*.pptx
+*.ppt
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+
+# VS Code (keep shared MCP config)
+.vscode/*
+!.vscode/mcp.json
+!.vscode/extensions.json
+!.vscode/settings.json
+
+# Secrets / local config
+.env
+.env.*
+*.env
+secrets.*
+*.secret
+*.secrets
+*.key
+*.pfx
+*.p12
+*.pem
+*.crt
+
+# Azure / Fabric local state (if any)
+.azure/

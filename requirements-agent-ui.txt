@@ -1,0 +1,8 @@
+# Dependencies for Foundry agent registration + Streamlit chat UI
+# Keeps the MCP server container small by not adding these to requirements.txt
+
+azure-identity
+azure-ai-projects>=2.0.0b1
+openai>=1.0.0
+python-dotenv
+streamlit

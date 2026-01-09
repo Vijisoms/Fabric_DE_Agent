@@ -3,6 +3,10 @@
     "FAB_DE": {
         "type": "http",
         "url": "http://127.0.0.1:8000/mcp"
+    },
+    "FAB_DE_AZURE": {
+        "type": "http",
+        "url": "https://<containerapp-fqdn>/mcp"
     }
   }
 }

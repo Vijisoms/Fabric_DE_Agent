@@ -1,0 +1,11 @@
+name: fabric-de-mcp
+metadata:
+  template: fabric-de-mcp-aca
+services:
+  fabdemcp:
+    project: .
+    host: containerapp
+    language: python
+    docker:
+      path: Dockerfile
+      context: .

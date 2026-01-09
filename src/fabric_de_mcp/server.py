@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import os
 from typing import Optional
 
 try:
@@ -14,7 +15,18 @@ from .fabric.api import create_lakehouse as api_create_lakehouse
 from .fabric.api import create_pipeline as api_create_pipeline
 from .fabric.auth import get_token
 
-app = FastMCP("FAB_DE")
+
+def _fastmcp_host() -> str:
+    # In Azure Container Apps, bind to all interfaces.
+    return os.getenv("FASTMCP_HOST", "127.0.0.1")
+
+
+def _fastmcp_port() -> int:
+    # Many PaaS hosts (including ACA) provide PORT; prefer FASTMCP_PORT when set.
+    return int(os.getenv("FASTMCP_PORT") or os.getenv("PORT") or "8000")
+
+
+app = FastMCP("FAB_DE", host=_fastmcp_host(), port=_fastmcp_port())
 
 
 @app.tool()

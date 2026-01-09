@@ -54,6 +54,14 @@ MCP_ALLOWED_TOOLS = os.getenv("MCP_ALLOWED_TOOLS")
 # Supported by Foundry docs: "always" (default) or "never".
 MCP_REQUIRE_APPROVAL = (os.getenv("MCP_REQUIRE_APPROVAL") or "never").strip()
 
+# Optional: if MCP requires approval, automatically approve requests for this server.
+# Default is off to avoid unintended external calls.
+MCP_AUTO_APPROVE = (os.getenv("MCP_AUTO_APPROVE") or "false").strip().lower() in {
+    "1",
+    "true",
+    "yes",
+}
+
 if not PROJECT_ENDPOINT:
     raise SystemExit(
         "Missing AZURE_AI_PROJECT_ENDPOINT (example: "
@@ -116,8 +124,18 @@ with (
         definition=PromptAgentDefinition(
             model=MODEL_DEPLOYMENT,
             instructions=(
-                "You are a helpful Fabric Data Engineering assistant. "
-                "Use the fabdemcp MCP tools when you need to create lakehouses or pipelines."
+                "You are a Microsoft Fabric Data Engineering assistant.\n"
+                "\n"
+                "Tool use (IMPORTANT):\n"
+                "- You have access to an MCP tool server labeled 'fabdemcp'.\n"
+                "- When a user asks anything that requires Fabric state (workspaces, items, lakehouses, pipelines, runs/status), you MUST call the appropriate fabdemcp tool instead of guessing.\n"
+                "- Prefer tool outputs over prior knowledge. If a tool call fails, explain what failed and ask for the missing info.\n"
+                "- Do not claim you created/updated/listed anything unless you actually called a tool and received a successful response.\n"
+                "\n"
+                "When to call tools:\n"
+                "- If the user asks to list workspaces/items, call the corresponding list tool.\n"
+                "- If the user asks to create a lakehouse or pipeline, call the create tool.\n"
+                "- If the user asks for status, call the get/status tool.\n"
             ),
             tools=[mcp_tool],
         ),
@@ -132,6 +150,38 @@ with (
         input="Tell me what you can help with.",
         extra_body={"agent": {"name": agent.name, "type": "agent_reference"}},
     )
+
+    # If MCP approvals are required, Foundry returns output items of type
+    # `mcp_approval_request`. You can approve and continue by sending a follow-up
+    # response with `previous_response_id`.
+    approval_inputs: list[dict] = []
+    for item in getattr(response, "output", []) or []:
+        if getattr(item, "type", None) != "mcp_approval_request":
+            continue
+        if getattr(item, "server_label", None) != mcp_tool.server_label:
+            continue
+        approval_request_id = getattr(item, "id", None)
+        if not approval_request_id:
+            continue
+        if not MCP_AUTO_APPROVE:
+            raise SystemExit(
+                "MCP tool call requires approval. Set MCP_AUTO_APPROVE=true to auto-approve, "
+                "or set MCP_REQUIRE_APPROVAL=never to disable approvals."
+            )
+        approval_inputs.append(
+            {
+                "type": "mcp_approval_response",
+                "approval_request_id": approval_request_id,
+                "approve": True,
+            }
+        )
+
+    if approval_inputs:
+        response = openai_client.responses.create(
+            input=approval_inputs,
+            previous_response_id=response.id,
+            extra_body={"agent": {"name": agent.name, "type": "agent_reference"}},
+        )
 
     print(f"Response output: {response.output_text}")
 

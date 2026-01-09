@@ -250,6 +250,33 @@ Run as a module:
 python -m fabric_de_mcp
 ```
 
+## Run the Streamlit chat UI (local)
+
+This repo includes a simple Streamlit UI at `apps/streamlit_chat.py` for chatting with your Foundry agent / MCP-enabled setup.
+
+### Windows (PowerShell)
+
+1. Create + activate a virtual environment:
+	- `python -m venv .venv`
+	- `./.venv/Scripts/Activate.ps1`
+
+2. Install UI dependencies:
+	- `python -m pip install -r requirements-agent-ui.txt`
+
+3. (Optional) Configure settings:
+	- Put your local settings in `config/.env` (this repo loads it).
+
+4. Start Streamlit:
+	- `$env:STREAMLIT_TELEMETRY_OPTOUT=1; python -m streamlit run ./apps/streamlit_chat.py`
+
+Streamlit prints the local URL (for example, `http://localhost:8501`).
+
+### Troubleshooting
+
+- **Port already in use**: pick a different port:
+  - `python -m streamlit run ./apps/streamlit_chat.py --server.port 8502`
+- **Stop Streamlit**: focus the terminal and press `Ctrl+C`.
+
 Or via the console script:
 
 ```bash

@@ -1,0 +1,38 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "fabric-de-mcp"
+version = "0.1.0"
+description = "Streamable MCP server for Microsoft Fabric Data Engineering automation"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "Proprietary" }
+authors = [{ name = "Fabric_DE_MCP contributors" }]
+dependencies = [
+  "azure-identity",
+  "requests",
+  "mcp",
+]
+
+[project.scripts]
+fab-de-mcp = "fabric_de_mcp.server:cli"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["fabric_de_mcp"]

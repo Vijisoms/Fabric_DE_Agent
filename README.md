@@ -1,6 +1,8 @@
-# Fabric_DE_Agent
+# Fabric_DE_MCP
 
 Small Python utilities + an MCP server for Microsoft Fabric Data Engineering tasks (create Lakehouse and Pipeline items).
+
+Production code lives under `src/` (Python src-layout).
 
 ## Quick start
 
@@ -8,6 +10,18 @@ Small Python utilities + an MCP server for Microsoft Fabric Data Engineering tas
 python -m venv .venv
 .venv\\Scripts\\activate
 pip install -r requirements.txt
+```
+
+Optionally install as an editable package:
+
+```bash
+pip install -e .
+```
+
+## Run the MCP server locally
+
+```bash
+python -m fabric_de_mcp
 ```
 
 ## Security
@@ -18,7 +32,6 @@ pip install -r requirements.txt
 
 ## Repo contents
 
-- `fab_de_mcp.py`: Streamable MCP server exposing Fabric operations.
-- `create_pipeline.py`: CLI to create a Fabric pipeline item.
-- `create_lakehouse.py`: CLI to create a Fabric lakehouse item.
-- `Approved/`: Sample/approved pipeline definitions.
+- `src/fabric_de_mcp/`: MCP server + Fabric REST helpers.
+- `.github/agents`, `.github/prompts`, `.github/instructions`: VS Code Copilot customization assets.
+- `assets/`: Sample assets (pipeline definitions, etc.).

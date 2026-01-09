@@ -1,0 +1,9 @@
+{
+  "include": ["src", "tests", "*.py"],
+  "executionEnvironments": [
+    {
+      "root": ".",
+      "extraPaths": ["src"]
+    }
+  ]
+}

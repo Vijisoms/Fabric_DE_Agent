@@ -27,5 +27,17 @@
 ## Security
 - Never commit or log bearer tokens/keys. Prefer `DefaultAzureCredential` and local `.env` (git-ignored).
 
+### No sensitive info in commits
+- Do not hard-code any environment-specific identifiers (project endpoints, subscription IDs, resource group names, hostnames) in tracked files.
+	- Use placeholders (e.g., `https://<resource>.services.ai.azure.com/...`, `https://<containerapp-fqdn>/mcp`) and/or environment variables.
+- Never commit local azd state or environment outputs (anything under `.azure/`).
+- Before committing changes that touch auth, endpoints, or configuration, quickly scan what’s staged:
+	- `git diff --cached`
+	- `git grep -n -I "AZURE_\|SUBSCRIPTION\|TENANT\|CLIENT_SECRET\|PRIVATE KEY\|Bearer " -- .`
+
+### Keep `.gitignore` current
+- When adding scripts, configs, or samples that may contain secrets or environment-specific values, update `.gitignore` in the same PR.
+- Prefer checked-in templates like `.env.example` and keep real values in local `.env` (already ignored).
+
 ## VS Code Copilot assets
 - Put custom agents/prompts/instructions under `.github/agents/`, `.github/prompts/`, `.github/instructions/`.

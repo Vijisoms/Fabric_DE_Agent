@@ -46,10 +46,18 @@ Thumbs.db
 !.vscode/extensions.json
 !.vscode/settings.json
 
+# VS Code local overrides (may contain env-specific endpoints/secrets)
+.vscode/mcp.local.json
+.vscode/mcp.*.local.json
+.vscode/*.local.json
+
 # Secrets / local config
 .env
 .env.*
 *.env
+.envrc
+.envrc.*
+.direnv/
 secrets.*
 *.secret
 *.secrets

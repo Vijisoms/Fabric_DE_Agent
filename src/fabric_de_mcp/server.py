@@ -14,7 +14,6 @@ from .fabric.api import create_lakehouse as api_create_lakehouse
 from .fabric.api import create_pipeline as api_create_pipeline
 from .fabric.auth import get_token
 
-
 app = FastMCP("FAB_DE")
 
 

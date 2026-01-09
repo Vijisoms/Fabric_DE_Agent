@@ -58,7 +58,10 @@ with st.sidebar:
     agent_version = st.text_input(
         "Agent version (optional)",
         value=_default_version,
-        help="If Foundry shows something like 'Fabric-DE-Agent:1', put 'Fabric-DE-Agent' above and '1' here.",
+        help=(
+            "If Foundry shows something like 'Fabric-DE-Agent:1', put 'Fabric-DE-Agent' above "
+            "and '1' here."
+        ),
     )
 
     st.text_input(
@@ -71,7 +74,9 @@ with st.sidebar:
     stream = st.toggle("Stream responses", value=True)
 
 if not project_endpoint:
-    st.info("Set AZURE_AI_PROJECT_ENDPOINT (or AZURE_EXISTING_AIPROJECT_ENDPOINT) to start chatting.")
+    st.info(
+        "Set AZURE_AI_PROJECT_ENDPOINT (or AZURE_EXISTING_AIPROJECT_ENDPOINT) to start chatting."
+    )
     st.stop()
 
 if "messages" not in st.session_state:
@@ -133,7 +138,9 @@ with DefaultAzureCredential() as credential, AIProjectClient(
                         openai_client,
                         conversation_id=st.session_state.conversation_id,
                         user_text=prompt,
-                        agent=(f"{agent_name}:{agent_version}" if agent_version else agent_name),
+                        agent=(
+                            f"{agent_name}:{agent_version}" if agent_version else agent_name
+                        ),
                     )
                 )
                 assistant_text = streamed_text or ""

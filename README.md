@@ -26,6 +26,33 @@ Today, the server supports creating:
 
 The server registers these tools:
 
+### `list_workspaces`
+
+Lists workspaces in the current Fabric tenant.
+
+Parameters:
+
+- `token` (string, optional) – bearer token override
+- `timeout` (float, default `30`)
+- `retries` (int, default `3`)
+- `backoff` (float, default `0.5`)
+
+### `create_item`
+
+Creates a Fabric item in a workspace (generic). Use this for any supported `item_type`.
+
+Parameters:
+
+- `workspace_id` (string, required)
+- `name` (string, required)
+- `item_type` (string, required) – e.g. `Lakehouse`, `Notebook`, `SparkJobDefinition`, `DataPipeline`
+- `token` (string, optional) – bearer token override
+- `description` (string, optional)
+- `definition_path` (string, optional) – path to a JSON definition file; the server base64-inlines the file contents
+- `timeout` (float, default `30`)
+- `retries` (int, default `3`)
+- `backoff` (float, default `0.5`)
+
 ### `create_lakehouse`
 
 Creates a Lakehouse item in a Fabric workspace.
@@ -56,6 +83,138 @@ Parameters:
 - `backoff` (float, default `0.5`)
 
 Sample pipeline definition files live under `assets/pipelines/`.
+
+### `list_items`
+
+Lists items in a workspace.
+
+Parameters:
+
+- `workspace_id` (string, required)
+- `token` (string, optional)
+- `continuation_url` (string, optional) – use when the service returns a continuation URI
+- `timeout` (float, default `30`)
+- `retries` (int, default `3`)
+- `backoff` (float, default `0.5`)
+
+### `get_item`
+
+Gets item properties by workspace and item id.
+
+Parameters:
+
+- `workspace_id` (string, required)
+- `item_id` (string, required)
+- `token` (string, optional)
+- `timeout` (float, default `30`)
+- `retries` (int, default `3`)
+- `backoff` (float, default `0.5`)
+
+### `update_item`
+
+Updates item metadata (display name / description).
+
+Parameters:
+
+- `workspace_id` (string, required)
+- `item_id` (string, required)
+- `token` (string, optional)
+- `name` (string, optional)
+- `description` (string, optional)
+- `item_type` (string, optional)
+- `timeout` (float, default `30`)
+- `retries` (int, default `3`)
+- `backoff` (float, default `0.5`)
+
+### `get_item_definition`
+
+Gets the definition for a Fabric item (base64 parts).
+
+Parameters:
+
+- `workspace_id` (string, required)
+- `item_id` (string, required)
+- `token` (string, optional)
+- `timeout` (float, default `30`)
+- `retries` (int, default `3`)
+- `backoff` (float, default `0.5`)
+
+### `update_item_definition`
+
+Updates the definition for a Fabric item.
+
+Parameters:
+
+- `workspace_id` (string, required)
+- `item_id` (string, required)
+- `token` (string, optional)
+- `name` (string, optional)
+- `item_type` (string, optional)
+- `definition_path` (string, optional)
+- `definition` (object/dict, optional)
+- `timeout` (float, default `30`)
+- `retries` (int, default `3`)
+- `backoff` (float, default `0.5`)
+
+### `get_lakehouse`
+
+Gets lakehouse properties.
+
+Parameters:
+
+- `workspace_id` (string, required)
+- `lakehouse_id` (string, required)
+- `token` (string, optional)
+- `timeout` (float, default `30`)
+- `retries` (int, default `3`)
+- `backoff` (float, default `0.5`)
+
+### `list_lakehouse_tables`
+
+Lists tables in a lakehouse.
+
+Parameters:
+
+- `workspace_id` (string, required)
+- `lakehouse_id` (string, required)
+- `token` (string, optional)
+- `max_results` (int, optional)
+- `continuation_url` (string, optional)
+- `timeout` (float, default `30`)
+- `retries` (int, default `3`)
+- `backoff` (float, default `0.5`)
+
+### `run_pipeline_job_instance`
+
+Runs an on-demand pipeline job instance.
+
+Parameters:
+
+- `workspace_id` (string, required)
+- `item_id` (string, required)
+- `token` (string, optional)
+- `execution_data` (object/dict, optional)
+- `timeout` (float, default `30`)
+- `retries` (int, default `3`)
+- `backoff` (float, default `0.5`)
+
+### `get_pipeline_job_instance`
+
+Gets status for a pipeline job instance.
+
+Parameters:
+
+- `workspace_id` (string, required)
+- `item_id` (string, required)
+- `job_instance_id` (string, required)
+- `token` (string, optional)
+- `timeout` (float, default `30`)
+- `retries` (int, default `3`)
+- `backoff` (float, default `0.5`)
+
+## Non-goals
+
+- This server intentionally does **not** expose Fabric delete REST APIs.
 
 ## Requirements
 

@@ -1,12 +1,15 @@
 from __future__ import annotations
 
 import os
+from pathlib import Path
 
 import streamlit as st
 from azure.ai.projects import AIProjectClient
 from azure.identity import DefaultAzureCredential
 from dotenv import load_dotenv
 
+_REPO_ROOT = Path(__file__).resolve().parents[1]
+load_dotenv(_REPO_ROOT / "config" / ".env")
 load_dotenv()
 
 st.set_page_config(page_title="Fabric DE Agent", page_icon="🧩", layout="centered")
@@ -14,14 +17,30 @@ st.set_page_config(page_title="Fabric DE Agent", page_icon="🧩", layout="cente
 st.title("Fabric DE Agent")
 st.caption("Chat with your Azure AI Foundry agent (with MCP tools).")
 
+
+def _default_project_endpoint() -> str:
+    return (
+        os.getenv("AZURE_AI_PROJECT_ENDPOINT")
+        or os.getenv("AZURE_EXISTING_AIPROJECT_ENDPOINT")
+        or ""
+    )
+
+
+def _default_agent_name() -> str:
+    return (
+        os.getenv("AGENT_NAME")
+        or os.getenv("AZURE_EXISTING_AGENT_ID")
+        or "Fabric-DE-Agent"
+    )
+
 with st.sidebar:
     st.subheader("Configuration")
     project_endpoint = st.text_input(
         "Project endpoint",
-        value=os.getenv("AZURE_AI_PROJECT_ENDPOINT", ""),
+        value=_default_project_endpoint(),
         placeholder="https://<resource>.services.ai.azure.com/api/projects/<project>",
     )
-    agent_name = st.text_input("Agent name", value=os.getenv("AGENT_NAME", "Fabric-DE-Agent"))
+    agent_name = st.text_input("Agent name", value=_default_agent_name())
 
     st.text_input(
         "MCP server URL (informational)",
@@ -33,7 +52,7 @@ with st.sidebar:
     stream = st.toggle("Stream responses", value=True)
 
 if not project_endpoint:
-    st.info("Set AZURE_AI_PROJECT_ENDPOINT to start chatting.")
+    st.info("Set AZURE_AI_PROJECT_ENDPOINT (or AZURE_EXISTING_AIPROJECT_ENDPOINT) to start chatting.")
     st.stop()
 
 if "messages" not in st.session_state:

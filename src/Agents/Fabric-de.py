@@ -14,14 +14,20 @@ Prereqs:
 from __future__ import annotations
 
 import os
+from pathlib import Path
 
 from azure.ai.projects import AIProjectClient
 from azure.ai.projects.models import MCPTool, PromptAgentDefinition
 from azure.identity import DefaultAzureCredential
+from dotenv import load_dotenv
 
-PROJECT_ENDPOINT = os.getenv("AZURE_AI_PROJECT_ENDPOINT")
+_REPO_ROOT = Path(__file__).resolve().parents[2]
+load_dotenv(_REPO_ROOT / "config" / ".env")
+load_dotenv()
 
-AGENT_NAME = os.getenv("AGENT_NAME", "Fabric-DE-Agent")
+PROJECT_ENDPOINT = os.getenv("AZURE_AI_PROJECT_ENDPOINT") or os.getenv("AZURE_EXISTING_AIPROJECT_ENDPOINT")
+
+AGENT_NAME = os.getenv("AGENT_NAME") or os.getenv("AZURE_EXISTING_AGENT_ID") or "Fabric-DE-Agent"
 MODEL_DEPLOYMENT = os.getenv("AZURE_AI_MODEL_DEPLOYMENT_NAME")
 MCP_SERVER_URL = os.getenv("MCP_SERVER_URL")
 

@@ -30,9 +30,13 @@ PROJECT_ENDPOINT = os.getenv("AZURE_AI_PROJECT_ENDPOINT") or os.getenv(
     "AZURE_EXISTING_AIPROJECT_ENDPOINT"
 )
 
-AGENT_NAME = (
+_raw_agent_name = (
     os.getenv("AGENT_NAME") or os.getenv("AZURE_EXISTING_AGENT_ID") or "Fabric-DE-Agent"
 )
+
+# Some UIs surface agent identifiers like "<name>:<version>". The Foundry API expects
+# an agent name (no colon). If a version suffix is present, strip it.
+AGENT_NAME = _raw_agent_name.split(":", 1)[0]
 MODEL_DEPLOYMENT = os.getenv("AZURE_AI_MODEL_DEPLOYMENT_NAME")
 MCP_SERVER_URL = os.getenv("MCP_SERVER_URL")
 

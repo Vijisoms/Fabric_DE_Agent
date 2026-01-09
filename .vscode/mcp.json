@@ -6,7 +6,7 @@
     },
     "FAB_DE_AZURE": {
         "type": "http",
-        "url": "https://<containerapp-fqdn>/mcp"
+        "url": "https://azcaorefwypsrdv4i.wonderfulbay-bb5587e7.eastus.azurecontainerapps.io/mcp"
     }
   }
 }

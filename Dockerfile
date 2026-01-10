@@ -15,6 +15,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Install the package
 COPY pyproject.toml README.md ./
 COPY src ./src
+COPY assets ./assets
 RUN pip install --no-cache-dir .
 
 EXPOSE 8000

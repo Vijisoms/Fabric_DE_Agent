@@ -1,2 +1,9 @@
 pytest
 ruff
+pytest-cov
+vulture
+pytest
+ruff
+pytest-cov
+vulture
+

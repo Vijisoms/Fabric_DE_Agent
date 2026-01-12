@@ -1,8 +1,7 @@
 # Dependencies for Agent Framework + DevUI (local web UI)
-# Keeps the MCP server container small by not adding these to requirements.txt
 #
 # NOTE: At the time of writing, these may be published as pre-release packages.
-# Install with: python -m pip install --pre -r requirements-agent-ui.txt
+# Install with: python -m pip install --pre -r src/devui/requirements.txt
 
 agent-framework
 agent-framework-azure-ai

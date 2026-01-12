@@ -2,7 +2,7 @@
 
 ## Install
 - Create venv and install deps:
-  - `pip install -r requirements.txt`
+  - `python -m pip install -r src/fabric_de_mcp/requirements.txt`
   - or `pip install -e .`
 
 ## Run the MCP server

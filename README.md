@@ -229,7 +229,7 @@ Create a virtual environment and install dependencies:
 ```bash
 python -m venv .venv
 .venv\Scripts\activate
-python -m pip install -r requirements.txt
+python -m pip install -r src/fabric_de_mcp/requirements.txt
 ```
 
 Editable install (recommended for development):
@@ -256,37 +256,44 @@ python -m fabric_de_mcp
 
 This repo supports a local web UI using **Microsoft Agent Framework DevUI**.
 
-DevUI discovers agents from [entities/fabric_de_agent](entities/fabric_de_agent/__init__.py).
+DevUI discovers agents from [src/devui/fabric_de_agent](src/devui/fabric_de_agent/__init__.py).
 The agent connects to this repo's MCP server via Streamable HTTP, so you can chat and invoke the MCP tools.
 
 ### Windows (PowerShell)
 
 1. Create + activate a virtual environment:
-	- `python -m venv .venv`
-	- `./.venv/Scripts/Activate.ps1`
+   - `python -m venv .venv`
+   - `./.venv/Scripts/Activate.ps1`
 
 2. Install DevUI / Agent Framework dependencies (pre-release packages):
-	- `python -m pip install --pre -r requirements-agent-ui.txt`
+   - `python -m pip install --pre -r src/devui/requirements.txt`
 
 
 3. Configure environment variables (recommended):
-	- Copy `.env.example` to `entities/.env` and fill in either:
-	  - **Azure AI Foundry Project** (`AZURE_AI_PROJECT_ENDPOINT`, `AZURE_AI_MODEL_DEPLOYMENT_NAME`), or
-	  - **Azure OpenAI** (`AZURE_OPENAI_ENDPOINT`, `AZURE_OPENAI_CHAT_DEPLOYMENT_NAME`).
-	- Ensure `MCP_SERVER_URL` points at your running MCP server (default: `http://127.0.0.1:8000/mcp`).
+   - Copy `src/devui/fabric_de_agent/.env.example` to `src/devui/fabric_de_agent/.env` and fill in either:
+     - **Azure AI Foundry Project** (`AZURE_AI_PROJECT_ENDPOINT`, `AZURE_AI_MODEL_DEPLOYMENT_NAME`), or
+     - **Azure OpenAI** (`AZURE_OPENAI_ENDPOINT`, `AZURE_OPENAI_CHAT_DEPLOYMENT_NAME`).
+   - Set `MCP_SERVER_URL` to the MCP endpoint you want DevUI to call:
+     - **Local MCP** (this repo running locally): `http://127.0.0.1:8000/mcp`
+     - **Deployed MCP (Azure Container Apps)**: `https://<containerapp-fqdn>/mcp`
 
-4. Start the MCP server (in a separate terminal):
-	- `python -m fabric_de_mcp`
+   Notes:
+   - The `/mcp` path matters.
+   - For Azure Container Apps, use the app's public ingress FQDN.
+   - Do not commit real hostnames/endpoints; keep them in your local `.env`.
+
+4. Start the MCP server (skip this if you're using the deployed Azure Container App MCP):
+   - `python -m fabric_de_mcp`
 
 5. Start DevUI:
-	- `devui ./entities --port 8080`
+   - `devui ./src/devui --port 8080`
 
 DevUI opens a browser (default: `http://localhost:8080`).
 
 ### Troubleshooting
 
 - **Port already in use**: pick a different port:
-  - `devui ./entities --port 8081`
+  - `devui ./src/devui --port 8081`
 - **Stop DevUI**: focus the terminal and press `Ctrl+C`.
 
 Or via the console script:
@@ -296,6 +303,43 @@ fab-de-mcp --transport streamable-http
 ```
 
 More notes: see `docs/run-local.md`.
+
+## Using a deployed MCP (Azure Container Apps)
+
+You can run DevUI locally while pointing it at a remotely deployed MCP server.
+
+### Deploy with Azure Developer CLI (`azd`)
+
+This repo is set up for `azd` (see `azure.yaml` and `infra/`).
+
+1. Install prerequisites (one time):
+   - Azure CLI (`az`) and Azure Developer CLI (`azd`)
+2. Authenticate:
+   - `az login`
+3. Provision + deploy:
+   - `azd up`
+
+After `azd up`, get the Container App FQDN from the deployment outputs:
+
+- `azd env get-values | findstr CONTAINER_APP_FQDN`
+
+The MCP endpoint is:
+
+- `https://<CONTAINER_APP_FQDN>/mcp`
+
+### Point DevUI at the deployed MCP
+
+1. Copy `src/devui/fabric_de_agent/.env.example` to `src/devui/fabric_de_agent/.env`.
+2. Set `MCP_SERVER_URL` to the deployed endpoint:
+
+   - `MCP_SERVER_URL=https://<containerapp-fqdn>/mcp`
+
+3. Start DevUI:
+
+   - `devui ./src/devui --port 8080`
+
+When using the deployed MCP server, Fabric credentials are handled by the MCP server's runtime identity
+(for example Managed Identity in Azure) rather than your local DevUI process.
 
 ## Authentication
 
@@ -316,6 +360,13 @@ Environment variables (optional):
 - `FABRIC_BASE_URL` (default: `https://api.fabric.microsoft.com/v1`)
 - `FABRIC_SCOPE` (default: `https://api.fabric.microsoft.com/.default`)
 
+### Local `.env` files
+
+- MCP server: copy `src/fabric_de_mcp/.env.example` to `src/fabric_de_mcp/.env`
+- DevUI agent: copy `src/devui/fabric_de_agent/.env.example` to `src/devui/fabric_de_agent/.env`
+
+Both are loaded automatically at runtime (when `python-dotenv` is installed).
+
 ## Repo structure
 
 - `src/fabric_de_mcp/`: production code (MCP server + Fabric REST helpers)
@@ -325,6 +376,10 @@ Environment variables (optional):
 - `.github/agents`, `.github/prompts`, `.github/instructions`: VS Code Copilot customization assets
 
 More detail: see `docs/folder-structure.md`.
+
+## Documentation
+
+- Start here: [docs/index.md](docs/index.md)
 
 ## Development
 
@@ -338,6 +393,17 @@ Run lint:
 
 ```bash
 ruff check .
+
+```
+
+Optional code-health checks:
+
+```bash
+# Approximate dead-code detection (best-effort; may need allowlists for false positives)
+python -m vulture src --min-confidence 80
+
+# Test coverage for the MCP package
+python -m pytest --cov=fabric_de_mcp --cov-report=term-missing
 ```
 
 ## Security notes

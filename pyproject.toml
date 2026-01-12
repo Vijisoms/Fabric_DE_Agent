@@ -24,6 +24,7 @@ package-dir = {"" = "src"}
 
 [tool.setuptools.packages.find]
 where = ["src"]
+exclude = ["devui*", "fabric_de_agent*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
@@ -36,3 +37,4 @@ select = ["E", "F", "I", "B"]
 
 [tool.ruff.lint.isort]
 known-first-party = ["fabric_de_mcp"]
+

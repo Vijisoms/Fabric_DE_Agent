@@ -274,13 +274,9 @@ The agent connects to this repo's MCP server via Streamable HTTP, so you can cha
 	  - **Azure AI Foundry Project** (`AZURE_AI_PROJECT_ENDPOINT`, `AZURE_AI_MODEL_DEPLOYMENT_NAME`), or
 	  - **Azure OpenAI** (`AZURE_OPENAI_ENDPOINT`, `AZURE_OPENAI_CHAT_DEPLOYMENT_NAME`).
 	- Ensure `MCP_SERVER_URL` points at your running MCP server (default: `http://127.0.0.1:8000/mcp`).
-	- Ensure `PLANNING_MCP_SERVER_URL` points at your planning MCP server (default: `http://127.0.0.1:8001/mcp`).
 
 4. Start the MCP server (in a separate terminal):
 	- `python -m fabric_de_mcp`
-
-Optional (recommended): start the planning MCP server (pipeline templates):
-	- `python -m fabric_de_mcp.planning_server`
 
 5. Start DevUI:
 	- `devui ./entities --port 8080`

@@ -17,15 +17,10 @@ except ImportError:  # pragma: no cover
     DefaultAzureCredential = None  # type: ignore[assignment]
 
 _DEFAULT_MCP_URL = "http://127.0.0.1:8000/mcp"
-_DEFAULT_PLANNING_MCP_URL = "http://127.0.0.1:8001/mcp"
 
 
 def _mcp_url() -> str:
     return os.getenv("MCP_SERVER_URL") or _DEFAULT_MCP_URL
-
-
-def _planning_mcp_url() -> str:
-    return os.getenv("PLANNING_MCP_SERVER_URL") or _DEFAULT_PLANNING_MCP_URL
 
 
 def _load_env_files() -> None:
@@ -98,23 +93,17 @@ mcp_tool = MCPStreamableHTTPTool(
     url=_mcp_url(),
 )
 
-planning_mcp_tool = MCPStreamableHTTPTool(
-    name="fabric_de_planning_mcp",
-    url=_planning_mcp_url(),
-)
-
 agent = ChatAgent(
     name="fabric_de_agent",
     chat_client=chat_client,
-    tools=[mcp_tool, planning_mcp_tool],
+    tools=[mcp_tool],
     instructions=(
         "You are a Microsoft Fabric Data Engineering assistant. "
         "You can use the available MCP tools (fabric_de_mcp) to list workspaces, "
         "create items (Lakehouse, DataPipeline), and inspect/update items.\n\n"
 
         "Pipeline creation workflow:\n"
-        "- To create a DataPipeline, first use the planning MCP tools (fabric_de_planning_mcp) "
-        "to list/get/render a pipeline definition template.\n"
+        "- Provide a valid pipeline definition JSON (Data Factory in Fabric format).\n"
         "- Then call fabric_de_mcp.create_pipeline or fabric_de_mcp.create_item "
         "with that definition.\n\n"
         "Tool use rules:\n"

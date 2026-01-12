@@ -67,5 +67,8 @@ secrets.*
 *.pem
 *.crt
 
+# Allow checked-in environment templates
+!**/.env.example
+
 # Azure / Fabric local state (if any)
 .azure/

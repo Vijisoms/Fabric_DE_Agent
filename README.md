@@ -49,6 +49,7 @@ Parameters:
 - `token` (string, optional) – bearer token override
 - `description` (string, optional)
 - `definition_path` (string, optional) – path to a JSON definition file; the server base64-inlines the file contents
+- `definition` (object/dict, optional) – pre-built Fabric definition payload (alternative to `definition_path`)
 - `timeout` (float, default `30`)
 - `retries` (int, default `3`)
 - `backoff` (float, default `0.5`)
@@ -78,6 +79,7 @@ Parameters:
 - `token` (string, optional) – bearer token override
 - `description` (string, optional)
 - `definition_path` (string, optional) – path to a JSON pipeline definition file; the server base64-inlines the file contents
+- `definition` (object/dict, optional) – pre-built Fabric definition payload (alternative to `definition_path`)
 - `timeout` (float, default `30`)
 - `retries` (int, default `3`)
 - `backoff` (float, default `0.5`)
@@ -250,9 +252,12 @@ Run as a module:
 python -m fabric_de_mcp
 ```
 
-## Run the Streamlit chat UI (local)
+## Run the DevUI (local)
 
-This repo includes a simple Streamlit UI at `apps/streamlit_chat.py` for chatting with your Foundry agent / MCP-enabled setup.
+This repo supports a local web UI using **Microsoft Agent Framework DevUI**.
+
+DevUI discovers agents from [entities/fabric_de_agent](entities/fabric_de_agent/__init__.py).
+The agent connects to this repo's MCP server via Streamable HTTP, so you can chat and invoke the MCP tools.
 
 ### Windows (PowerShell)
 
@@ -260,22 +265,33 @@ This repo includes a simple Streamlit UI at `apps/streamlit_chat.py` for chattin
 	- `python -m venv .venv`
 	- `./.venv/Scripts/Activate.ps1`
 
-2. Install UI dependencies:
-	- `python -m pip install -r requirements-agent-ui.txt`
+2. Install DevUI / Agent Framework dependencies (pre-release packages):
+	- `python -m pip install --pre -r requirements-agent-ui.txt`
 
-3. (Optional) Configure settings:
-	- Put your local settings in `config/.env` (this repo loads it).
 
-4. Start Streamlit:
-	- `$env:STREAMLIT_TELEMETRY_OPTOUT=1; python -m streamlit run ./apps/streamlit_chat.py`
+3. Configure environment variables (recommended):
+	- Copy `.env.example` to `entities/.env` and fill in either:
+	  - **Azure AI Foundry Project** (`AZURE_AI_PROJECT_ENDPOINT`, `AZURE_AI_MODEL_DEPLOYMENT_NAME`), or
+	  - **Azure OpenAI** (`AZURE_OPENAI_ENDPOINT`, `AZURE_OPENAI_CHAT_DEPLOYMENT_NAME`).
+	- Ensure `MCP_SERVER_URL` points at your running MCP server (default: `http://127.0.0.1:8000/mcp`).
+	- Ensure `PLANNING_MCP_SERVER_URL` points at your planning MCP server (default: `http://127.0.0.1:8001/mcp`).
 
-Streamlit prints the local URL (for example, `http://localhost:8501`).
+4. Start the MCP server (in a separate terminal):
+	- `python -m fabric_de_mcp`
+
+Optional (recommended): start the planning MCP server (pipeline templates):
+	- `python -m fabric_de_mcp.planning_server`
+
+5. Start DevUI:
+	- `devui ./entities --port 8080`
+
+DevUI opens a browser (default: `http://localhost:8080`).
 
 ### Troubleshooting
 
 - **Port already in use**: pick a different port:
-  - `python -m streamlit run ./apps/streamlit_chat.py --server.port 8502`
-- **Stop Streamlit**: focus the terminal and press `Ctrl+C`.
+  - `devui ./entities --port 8081`
+- **Stop DevUI**: focus the terminal and press `Ctrl+C`.
 
 Or via the console script:
 

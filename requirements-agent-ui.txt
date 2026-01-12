@@ -1,8 +1,12 @@
-# Dependencies for Foundry agent registration + Streamlit chat UI
+# Dependencies for Agent Framework + DevUI (local web UI)
 # Keeps the MCP server container small by not adding these to requirements.txt
+#
+# NOTE: At the time of writing, these may be published as pre-release packages.
+# Install with: python -m pip install --pre -r requirements-agent-ui.txt
+
+agent-framework
+agent-framework-azure-ai
+agent-framework-devui
 
 azure-identity
-azure-ai-projects>=2.0.0b1
-openai>=1.0.0
 python-dotenv
-streamlit

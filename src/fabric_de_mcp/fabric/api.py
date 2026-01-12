@@ -87,6 +87,7 @@ def create_item(
     token: str,
     description: Optional[str],
     definition_path: Optional[str],
+    definition: Optional[dict[str, Any]] = None,
     timeout: float,
     retries: int,
     backoff: float,
@@ -96,6 +97,9 @@ def create_item(
     Fabric supports creating many item types through the unified endpoint:
     POST /v1/workspaces/{workspaceId}/items
     """
+    if definition_path and definition:
+        raise ValueError("Provide only one of definition_path or definition")
+
     session = build_session(retries=retries, backoff=backoff)
     payload: dict[str, Any] = {
         "displayName": display_name,
@@ -105,6 +109,8 @@ def create_item(
         payload["description"] = description
     if definition_path:
         payload["definition"] = encode_definition(definition_path)
+    elif definition is not None:
+        payload["definition"] = definition
 
     url = f"{fabric_base_url()}/workspaces/{workspace_id}/items"
     return _request(
@@ -125,6 +131,7 @@ def create_pipeline(
     token: str,
     description: str,
     definition_path: Optional[str],
+    definition: Optional[dict[str, Any]] = None,
     timeout: float,
     retries: int,
     backoff: float,
@@ -136,6 +143,7 @@ def create_pipeline(
         token=token,
         description=description,
         definition_path=definition_path,
+        definition=definition,
         timeout=timeout,
         retries=retries,
         backoff=backoff,

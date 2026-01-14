@@ -100,10 +100,29 @@ INSTRUCTIONS = textwrap.dedent(
     If a second MCP server is configured via FABRIC_MCP_URL, you can also
     use the available MCP tools (fabric_mcp).
 
-        Pipeline creation workflow:
-       # - Provide a valid pipeline definition JSON (Data Factory in Fabric format).
-        - create the pipeline definition using the Fabric MCP tool and use this definition to create_pipeline in Fab_de_agent.
-        - Then call fabric_de_mcp.create_pipeline or fabric_de_mcp.create_item with that definition.
+                Definition-first rule (STRICT):
+                - If fabric_mcp is available and the user request requires a JSON definition/payload (for example: creating/updating a DataPipeline,
+                    Notebook, SparkJobDefinition, etc.), you MUST call fabric_mcp tools first to generate and/or validate the required definition.
+                - Only after fabric_mcp returns a usable definition should you call fabric_de_mcp tools that create/update resources.
+                - This rule applies specifically to these fabric_de_mcp operations:
+                    - fabric_de_mcp.create_pipeline
+                    - fabric_de_mcp.create_item
+                    - fabric_de_mcp.update_item
+                - Exception: you may skip fabric_mcp only if the user already provided an explicit, complete definition (or a server-local definition_path)
+                    AND the user explicitly told you to proceed.
+
+                Pipeline creation workflow (REQUIRED when fabric_mcp is available):
+                - Step 1 (definition): Call a fabric_mcp tool to generate or validate a *Fabric DataPipeline definition*.
+                    - The output must be either:
+                        - a JSON definition object you can pass as the `definition` parameter, OR
+                        - a file path you can pass as `definition_path` (only if that file exists on the MCP server host).
+                - Step 2 (create): Call fabric_de_mcp.create_pipeline (preferred) or fabric_de_mcp.create_item with:
+                    - workspace_id
+                    - name
+                    - and the `definition`/`definition_path` obtained from Step 1.
+                - Do not call fabric_de_mcp.create_pipeline/create_item until Step 1 has produced a usable definition,
+                    unless the user explicitly provides a definition/definition_path and tells you to proceed.
+                - If fabric_mcp is NOT configured/available, ask the user for a valid pipeline definition JSON or a definition file path.
 
         Tool use rules:
         - Prefer MCP tool calls over guessing.
@@ -120,21 +139,19 @@ INSTRUCTIONS = textwrap.dedent(
         """
 ).strip()
 
-#_fabric_url = _fabric_mcp_url()
-#fabric_mcp_tool = (
-#    MCPStreamableHTTPTool(
-#        name="fabric_mcp",
-#        url=_fabric_url,
-#    )
-#    if _fabric_url
-#    else None
-#)
+_fabric_url = _fabric_mcp_url()
+fabric_mcp_tool = (
+    MCPStreamableHTTPTool(
+        name="fabric_mcp",
+        url=_fabric_url,
+    )
+    if _fabric_url
+    else None
+)
 
 agent = ChatAgent(
     name="fabric_de_agent",
     chat_client=chat_client,
-    tools=[t for t in [mcp_tool] if t is not None],
+    tools=[t for t in [mcp_tool, fabric_mcp_tool] if t is not None],
     instructions=INSTRUCTIONS,
 )
-
-#, fabric_mcp_tool

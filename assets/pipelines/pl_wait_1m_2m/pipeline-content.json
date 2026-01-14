@@ -1,5 +1,4 @@
 {
-  "name": "pipeline_wait_two_steps",
   "properties": {
     "activities": [
       {

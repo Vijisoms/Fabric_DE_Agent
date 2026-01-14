@@ -20,6 +20,12 @@ except ImportError:  # pragma: no cover
 _DEFAULT_MCP_URL = "http://127.0.0.1:8000/mcp"
 
 
+def _fabric_mcp_url() -> str | None:
+    # Optional: this is a second MCP server (e.g., another local server or a deployed endpoint)
+    # that exposes additional tools such as mcp_fabric_mcp_architecture_planning.
+    return os.getenv("FABRIC_MCP_URL")
+
+
 def _mcp_url() -> str:
     return os.getenv("MCP_SERVER_URL") or _DEFAULT_MCP_URL
 
@@ -91,8 +97,12 @@ INSTRUCTIONS = textwrap.dedent(
     You can use the available MCP tools (fabric_de_mcp) to list workspaces,
     create items (Lakehouse, DataPipeline), and inspect/update items.
 
+    If a second MCP server is configured via FABRIC_MCP_URL, you can also
+    use the available MCP tools (fabric_mcp).
+
         Pipeline creation workflow:
-        - Provide a valid pipeline definition JSON (Data Factory in Fabric format).
+       # - Provide a valid pipeline definition JSON (Data Factory in Fabric format).
+        - create the pipeline definition using the Fabric MCP tool and use this definition to create_pipeline in Fab_de_agent.
         - Then call fabric_de_mcp.create_pipeline or fabric_de_mcp.create_item with that definition.
 
         Tool use rules:
@@ -110,9 +120,21 @@ INSTRUCTIONS = textwrap.dedent(
         """
 ).strip()
 
+#_fabric_url = _fabric_mcp_url()
+#fabric_mcp_tool = (
+#    MCPStreamableHTTPTool(
+#        name="fabric_mcp",
+#        url=_fabric_url,
+#    )
+#    if _fabric_url
+#    else None
+#)
+
 agent = ChatAgent(
     name="fabric_de_agent",
     chat_client=chat_client,
-    tools=[mcp_tool],
+    tools=[t for t in [mcp_tool] if t is not None],
     instructions=INSTRUCTIONS,
 )
+
+#, fabric_mcp_tool

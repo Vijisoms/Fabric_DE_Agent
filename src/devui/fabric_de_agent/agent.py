@@ -20,14 +20,25 @@ except ImportError:  # pragma: no cover
 _DEFAULT_MCP_URL = "http://127.0.0.1:8000/mcp"
 
 
+def _normalize_mcp_endpoint(url: str) -> str:
+    url = url.strip()
+    if not url:
+        return url
+    # Accept either the full MCP endpoint or a base URL.
+    url = url.rstrip("/")
+    if url.endswith("/mcp"):
+        return url
+    return f"{url}/mcp"
+
 def _fabric_mcp_url() -> str | None:
     # Optional: this is a second MCP server (e.g., another local server or a deployed endpoint)
     # that exposes additional tools such as mcp_fabric_mcp_architecture_planning.
-    return os.getenv("FABRIC_MCP_URL")
+    raw = (os.getenv("FABRIC_MCP_URL") or "").strip()
+    return _normalize_mcp_endpoint(raw) if raw else None
 
 
 def _mcp_url() -> str:
-    return os.getenv("MCP_SERVER_URL") or _DEFAULT_MCP_URL
+    return _normalize_mcp_endpoint(os.getenv("MCP_SERVER_URL") or _DEFAULT_MCP_URL)
 
 def _load_env_files() -> None:
     if load_dotenv is None:
@@ -63,7 +74,6 @@ def _foundry_model_deployment_name() -> str | None:
 
 def _build_chat_client():
     _load_env_files()
-
     project_endpoint = _foundry_project_endpoint()
     if project_endpoint:
         if DefaultAzureCredential is None:

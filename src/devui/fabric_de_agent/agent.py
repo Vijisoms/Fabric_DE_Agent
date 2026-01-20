@@ -149,19 +149,19 @@ INSTRUCTIONS = textwrap.dedent(
         """
 ).strip()
 
-_fabric_url = _fabric_mcp_url()
-fabric_mcp_tool = (
-    MCPStreamableHTTPTool(
-        name="fabric_mcp",
-        url=_fabric_url,
-    )
-    if _fabric_url
-    else None
-)
+# _fabric_url = _fabric_mcp_url()
+# fabric_mcp_tool = (
+#     MCPStreamableHTTPTool(
+#         name="fabric_mcp",
+#         url=_fabric_url,
+#     )
+#     if _fabric_url
+#     else None
+# )
 
 agent = ChatAgent(
     name="fabric_de_agent",
     chat_client=chat_client,
-    tools=[t for t in [mcp_tool, fabric_mcp_tool] if t is not None],
+    tools=[t for t in [mcp_tool] if t is not None],
     instructions=INSTRUCTIONS,
 )

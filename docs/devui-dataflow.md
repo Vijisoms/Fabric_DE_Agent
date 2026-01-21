@@ -23,20 +23,22 @@ sequenceDiagram
   autonumber
   participant UI as DevUI (web)
   participant Agent as ChatAgent
-  participant Tool as MCPStreamableHTTPTool
+  participant Tool as MCP Tool<br/>(HTTP / WebSocket / Stdio)
   participant MCP as MCP Server (FastMCP /mcp)
   participant Auth as get_token (DefaultAzureCredential)
   participant Fabric as Fabric REST API
 
   UI->>Agent: User message
-  Agent->>Tool: Decide tool call
-  Tool->>MCP: HTTP request (Streamable HTTP)
-  MCP->>Auth: token or get_token()
-  Auth-->>MCP: Bearer token
-  MCP->>Fabric: HTTP request with Authorization: Bearer
-  Fabric-->>MCP: JSON response
-  MCP-->>Tool: Tool result
-  Tool-->>Agent: Tool result
+  loop For each required tool call
+    Agent->>Tool: Decide tool call
+    Tool->>MCP: HTTP request (Streamable HTTP)
+    MCP->>Auth: token or get_token()
+    Auth-->>MCP: Bearer token
+    MCP->>Fabric: HTTP request with Authorization: Bearer
+    Fabric-->>MCP: JSON response
+    MCP-->>Tool: Tool result
+    Tool-->>Agent: Tool result
+  end
   Agent-->>UI: Assistant response
 ```
 
@@ -63,5 +65,5 @@ flowchart TD
 
 ## Local vs Azure
 
-- **Local**: `MCP_SERVER_URL` can be `http://127.0.0.1:8000/mcp`.
-- **Azure Container App**: `MCP_SERVER_URL` should be `https://<containerapp-fqdn>/mcp`.
+- **Local**: `FABRIC_DE_MCP_SERVER_URL` can be `http://127.0.0.1:8000/mcp`.
+- **Azure Container App**: `FABRIC_DE_MCP_SERVER_URL` should be `https://<containerapp-fqdn>/mcp`.

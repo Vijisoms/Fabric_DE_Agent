@@ -1,0 +1,29 @@
+{
+  "properties": {
+    "activities": [
+      {
+        "name": "Wait_1_Minute",
+        "type": "Wait",
+        "dependsOn": [],
+        "typeProperties": {
+          "waitTimeInSeconds": 60
+        }
+      },
+      {
+        "name": "Wait_2_Minutes",
+        "type": "Wait",
+        "dependsOn": [
+          {
+            "activity": "Wait_1_Minute",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ],
+        "typeProperties": {
+          "waitTimeInSeconds": 120
+        }
+      }
+    ]
+  }
+}

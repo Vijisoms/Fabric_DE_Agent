@@ -20,25 +20,14 @@ except ImportError:  # pragma: no cover
 _DEFAULT_MCP_URL = "http://127.0.0.1:8000/mcp"
 
 
-def _normalize_mcp_endpoint(url: str) -> str:
-    url = url.strip()
-    if not url:
-        return url
-    # Accept either the full MCP endpoint or a base URL.
-    url = url.rstrip("/")
-    if url.endswith("/mcp"):
-        return url
-    return f"{url}/mcp"
-
 def _fabric_mcp_url() -> str | None:
     # Optional: this is a second MCP server (e.g., another local server or a deployed endpoint)
     # that exposes additional tools such as mcp_fabric_mcp_architecture_planning.
-    raw = (os.getenv("FABRIC_MCP_URL") or "").strip()
-    return _normalize_mcp_endpoint(raw) if raw else None
+    return os.getenv("FABRIC_MCP_URL")
 
 
 def _mcp_url() -> str:
-    return _normalize_mcp_endpoint(os.getenv("MCP_SERVER_URL") or _DEFAULT_MCP_URL)
+    return os.getenv("MCP_SERVER_URL") or _DEFAULT_MCP_URL
 
 def _load_env_files() -> None:
     if load_dotenv is None:
@@ -149,19 +138,19 @@ INSTRUCTIONS = textwrap.dedent(
         """
 ).strip()
 
-# _fabric_url = _fabric_mcp_url()
-# fabric_mcp_tool = (
-#     MCPStreamableHTTPTool(
-#         name="fabric_mcp",
-#         url=_fabric_url,
-#     )
-#     if _fabric_url
-#     else None
-# )
+_fabric_url = _fabric_mcp_url()
+fabric_mcp_tool = (
+    MCPStreamableHTTPTool(
+        name="fabric_mcp",
+        url=_fabric_url,
+    )
+    if _fabric_url
+    else None
+)
 
 agent = ChatAgent(
     name="fabric_de_agent",
     chat_client=chat_client,
-    tools=[t for t in [mcp_tool] if t is not None],
+    tools=[t for t in [mcp_tool, fabric_mcp_tool] if t is not None],
     instructions=INSTRUCTIONS,
 )

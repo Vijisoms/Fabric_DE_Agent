@@ -29,7 +29,7 @@ If you notice files in the wrong place (especially `.env` files, requirements, o
 ## DevUI (local testing)
 - DevUI agent(s) live under `src/devui/`.
 - Directory discovery expects each agent folder to export `agent` from `__init__.py` (implementation in `agent.py`).
-- DevUI uses `MCPStreamableHTTPTool` to call the MCP server at `MCP_SERVER_URL`.
+- DevUI uses `MCPStreamableHTTPTool` to call the MCP server at `FABRIC_DE_MCP_SERVER_URL`.
 
 ### DevUI + deployed MCP
 - The MCP endpoint path is always `/mcp`.

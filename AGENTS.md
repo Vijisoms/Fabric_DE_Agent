@@ -46,7 +46,7 @@ DevUI is for interactive testing of the MCP tool surface.
 1. Configure agent env vars:
 
     - Copy `src/devui/fabric_de_agent/.env.example` to `src/devui/fabric_de_agent/.env` and fill it in.
-    - Set `MCP_SERVER_URL` to your MCP server (default: `http://127.0.0.1:8000/mcp`).
+    - Set `FABRIC_DE_MCP_SERVER_URL` to your MCP server (default: `http://127.0.0.1:8000/mcp`).
 
     If you want to verify the env file exists first:
 

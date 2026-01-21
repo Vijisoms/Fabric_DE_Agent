@@ -273,7 +273,7 @@ The agent connects to this repo's MCP server via Streamable HTTP, so you can cha
    - Copy `src/devui/fabric_de_agent/.env.example` to `src/devui/fabric_de_agent/.env` and fill in either:
      - **Azure AI Foundry Project** (`AZURE_AI_PROJECT_ENDPOINT`, `AZURE_AI_MODEL_DEPLOYMENT_NAME`), or
      - **Azure OpenAI** (`AZURE_OPENAI_ENDPOINT`, `AZURE_OPENAI_CHAT_DEPLOYMENT_NAME`).
-   - Set `MCP_SERVER_URL` to the MCP endpoint you want DevUI to call:
+   - Set `FABRIC_DE_MCP_SERVER_URL` to the MCP endpoint you want DevUI to call:
      - **Local MCP** (this repo running locally): `http://127.0.0.1:8000/mcp`
      - **Deployed MCP (Azure Container Apps)**: `https://<containerapp-fqdn>/mcp`
 
@@ -330,9 +330,9 @@ The MCP endpoint is:
 ### Point DevUI at the deployed MCP
 
 1. Copy `src/devui/fabric_de_agent/.env.example` to `src/devui/fabric_de_agent/.env`.
-2. Set `MCP_SERVER_URL` to the deployed endpoint:
+2. Set `FABRIC_DE_MCP_SERVER_URL` to the deployed endpoint:
 
-   - `MCP_SERVER_URL=https://<containerapp-fqdn>/mcp`
+   - `FABRIC_DE_MCP_SERVER_URL=https://<containerapp-fqdn>/mcp`
 
 3. Start DevUI:
 

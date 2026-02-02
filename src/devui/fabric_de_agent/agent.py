@@ -4,20 +4,29 @@ import os
 import textwrap
 from pathlib import Path
 
-from agent_framework import ChatAgent, MCPStreamableHTTPTool, MCPTool
+from typing import TYPE_CHECKING
+
+from agent_framework import ChatAgent, MCPStreamableHTTPTool
 from agent_framework.azure import AzureAIAgentClient, AzureOpenAIChatClient
 
 try:
     from dotenv import load_dotenv
 except ImportError:  # pragma: no cover
     load_dotenv = None  # type: ignore[assignment]
-          MCPStreamableHTTPTool(
-                name="fabric_de_mcp",
-          url=(os.getenv("FABRIC_DE_MCP_SERVER_URL") or "http://127.0.0.1:8000/mcp").strip(),
+
 try:
     from azure.identity.aio import DefaultAzureCredential
 except ImportError:  # pragma: no cover
     DefaultAzureCredential = None  # type: ignore[assignment]
+
+if TYPE_CHECKING:
+    from agent_framework._mcp import MCPTool
+else:
+    try:
+        from agent_framework._mcp import MCPTool
+    except ImportError:  # pragma: no cover
+        MCPTool = MCPStreamableHTTPTool  # type: ignore[misc,assignment]
+
 
 def _load_env_files() -> None:
     if load_dotenv is None:
@@ -32,7 +41,9 @@ def _load_env_files() -> None:
 
 
 def _foundry_project_endpoint() -> str | None:
-        url=(os.getenv("FABRIC_DE_MCP_SERVER_URL") or "http://127.0.0.1:8000/mcp").strip(),
+    endpoint = os.getenv("AZURE_AI_PROJECT_ENDPOINT") or os.getenv(
+        "AZURE_EXISTING_AIPROJECT_ENDPOINT"
+    )
     if endpoint:
         return endpoint
 
@@ -81,62 +92,67 @@ tools: list[MCPTool] = [
         url=(os.getenv("FABRIC_DE_MCP_SERVER_URL") or "http://127.0.0.1:8000/mcp").strip(),
     )
 ]
-if fabric_mcp_url := os.getenv("FABRIC_MCP_URL"):
-    tools.append(
-# Optionally add a second MCP tool if OTHER_MCP_SERVER_URL is set.
-# tools.append(
-#     MCPStreamableHTTPTool(
-#         name="fabric_mcp",
-#         url=other_mcp_url,
+# if fabric_mcp_url := os.getenv("FABRIC_MCP_URL"):
+#     tools.append(
+#         MCPStreamableHTTPTool(
+#             name="Microsoft Fabric MCP",
+#             url=fabric_mcp_url.strip(),
+#         )
 #     )
-# )
+
+tools.append(
+    MCPStreamableHTTPTool(
+        name="fabric_mcp",
+        url=(os.getenv("FABRIC_MCP_URL") or "http://127.0.0.1:5001").strip(),
+    )
+)
+
+
 
 INSTRUCTIONS = textwrap.dedent(
-        """\
-        You are a Microsoft Fabric Data Engineering assistant.
+    """\
+    You are a Microsoft Fabric Data Engineering assistant.
     You can use the available MCP tools (fabric_de_mcp) to list workspaces,
     create items (Lakehouse, DataPipeline), and inspect/update items.
 
     If a second MCP server is configured via FABRIC_MCP_URL, you can also
     use the available MCP tools (fabric_mcp).
 
-                Definition-first rule (STRICT):
-                - If fabric_mcp is available and the user request requires a JSON definition/payload (for example: creating/updating a DataPipeline,
-                    Notebook, SparkJobDefinition, etc.), you MUST call fabric_mcp tools first to generate and/or validate the required definition.
-                - Only after fabric_mcp returns a usable definition should you call fabric_de_mcp tools that create/update resources.
-                - This rule applies specifically to these fabric_de_mcp operations:
-                    - fabric_de_mcp.create_pipeline
-                    - fabric_de_mcp.create_item
-                    - fabric_de_mcp.update_item
-                - Exception: you may skip fabric_mcp only if the user already provided an explicit, complete definition (or a server-local definition_path)
-                    AND the user explicitly told you to proceed.
+    Definition-first rule (STRICT):
+    - If fabric_mcp is available and the user request requires a JSON definition/payload (for example: creating/updating a DataPipeline,
+      Notebook, SparkJobDefinition, etc.), you MUST call fabric_mcp tools first to generate and/or validate the required definition.
+    - Only after fabric_mcp returns a usable definition should you call fabric_de_mcp tools that create/update resources.
+    - This rule applies specifically to these fabric_de_mcp operations:
+      - fabric_de_mcp.create_pipeline
+      - fabric_de_mcp.create_item
+      - fabric_de_mcp.update_item
+    - Exception: you may skip fabric_mcp only if the user already provided an explicit, complete definition (or a server-local definition_path)
+      AND the user explicitly told you to proceed.
 
-                Pipeline creation workflow (REQUIRED when fabric_mcp is available):
-                - Step 1 (definition): Call a fabric_mcp tool to generate or validate a *Fabric DataPipeline definition*.
-                    - The output must be either:
-                        - a JSON definition object you can pass as the `definition` parameter, OR
-                        - a file path you can pass as `definition_path` (only if that file exists on the MCP server host).
-                - Step 2 (create): Call fabric_de_mcp.create_pipeline (preferred) or fabric_de_mcp.create_item with:
-                    - workspace_id
-                    - name
-                    - and the `definition`/`definition_path` obtained from Step 1.
-                - Do not call fabric_de_mcp.create_pipeline/create_item until Step 1 has produced a usable definition,
-                    unless the user explicitly provides a definition/definition_path and tells you to proceed.
-                - If fabric_mcp is NOT configured/available, ask the user for a valid pipeline definition JSON or a definition file path.
+    Pipeline creation workflow (REQUIRED when fabric_mcp is available):
+    - Step 1 (definition): Call a fabric_mcp tool to generate or validate a *Fabric DataPipeline definition*.
+      - The output must be either:
+        - a JSON definition object you can pass as the `definition` parameter, OR
+        - a file path you can pass as `definition_path` (only if that file exists on the MCP server host).
+    - Step 2 (create): Call fabric_de_mcp.create_pipeline (preferred) or fabric_de_mcp.create_item with:
+      - workspace_id
+      - name
+      - and the `definition`/`definition_path` obtained from Step 1.
+    - Do not call fabric_de_mcp.create_pipeline/create_item until Step 1 has produced a usable definition,
+      unless the user explicitly provides a definition/definition_path and tells you to proceed.
+    - If fabric_mcp is NOT configured/available, ask the user for a valid pipeline definition JSON or a definition file path.
 
-        Tool use rules:
-        - Prefer MCP tool calls over guessing.
-        - Before calling tools that CREATE or UPDATE resources, describe what you plan
-            to do and ask for
-            confirmation unless the user explicitly told you to proceed.
-        - Do not claim an item was created/updated unless the MCP tool call succeeded.
-        - If a tool call fails, explain what failed and ask for the missing inputs.
+    Tool use rules:
+    - Prefer MCP tool calls over guessing.
+    - Before calling tools that CREATE or UPDATE resources, describe what you plan
+      to do and ask for confirmation unless the user explicitly told you to proceed.
+    - Do not claim an item was created/updated unless the MCP tool call succeeded.
+    - If a tool call fails, explain what failed and ask for the missing inputs.
 
-        Auth note:
-        - The MCP server supports an optional 'token' parameter, but when running
-            locally it typically
-            uses DefaultAzureCredential automatically.
-        """
+    Auth note:
+    - The MCP server supports an optional 'token' parameter, but when running
+      locally it typically uses DefaultAzureCredential automatically.
+    """
 ).strip()
 
 agent = ChatAgent(

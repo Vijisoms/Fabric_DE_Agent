@@ -1,0 +1,68 @@
+{
+  "properties": {
+    "description": "Copy dimension_city table from wwilakehouse to lh_by_agent lakehouse",
+    "activities": [
+      {
+        "name": "CopyDimensionCity",
+        "type": "Copy",
+        "dependsOn": [],
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 3,
+          "retryIntervalInSeconds": 30,
+          "secureOutput": false,
+          "secureInput": false
+        },
+        "typeProperties": {
+          "source": {
+            "type": "LakehouseTableSource",
+            "datasetSettings": {
+              "annotations": [],
+              "linkedService": {
+                "name": "wwilakehouse",
+                "properties": {
+                  "annotations": [],
+                  "type": "Lakehouse",
+                  "typeProperties": {
+                    "workspaceId": "dcf9c761-029f-4abb-b6a2-80964ef99cd0",
+                    "artifactId": "ba8155f0-0f23-4cc9-aa69-2a59a90c217e",
+                    "rootFolder": "Tables"
+                  }
+                }
+              },
+              "type": "LakehouseTable",
+              "schema": [],
+              "typeProperties": {
+                "table": "dimension_city"
+              }
+            }
+          },
+          "sink": {
+            "type": "LakehouseTableSink",
+            "tableActionOption": "Append",
+            "datasetSettings": {
+              "annotations": [],
+              "linkedService": {
+                "name": "lh_by_agent",
+                "properties": {
+                  "annotations": [],
+                  "type": "Lakehouse",
+                  "typeProperties": {
+                    "workspaceId": "0970a544-da58-44bb-9713-e647bbb26fdb",
+                    "artifactId": "aeca8341-5e15-4202-b13b-77d1cf717b3b",
+                    "rootFolder": "Tables"
+                  }
+                }
+              },
+              "type": "LakehouseTable",
+              "schema": [],
+              "typeProperties": {
+                "table": "dimension_new"
+              }
+            }
+          }
+        }
+      }
+    ]
+  }
+}

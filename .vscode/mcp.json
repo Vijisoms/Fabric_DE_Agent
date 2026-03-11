@@ -1,12 +1,21 @@
 {
-  "servers": {
-    "FAB_DE": {
-        "type": "http",
-        "url": "http://127.0.0.1:8000/mcp"
-    },
-    "FAB_DE_AZURE": {
-        "type": "http",
-        "url": "https://azcaorefwypsrdv4i.wonderfulbay-bb5587e7.eastus.azurecontainerapps.io/mcp"
-    }
-  }
+	"servers": {
+		"FAB_DE": {
+			"type": "http",
+			"url": "http://127.0.0.1:8000/mcp"
+		},
+		"FAB_DE_AZURE": {
+			"type": "http",
+			"url": "https://azcaorefwypsrdv4i.wonderfulbay-bb5587e7.eastus.azurecontainerapps.io/mcp"
+		},
+		// "fabricapimcp": {
+		// 	"type": "http",
+		// 	"url": "https://api.fabric.microsoft.com/v1/mcp"
+		// },
+		"fabric_mcp": {
+			"type": "http",
+			"url": "https://fabric-mcp-newumage-server.politesand-c956bc4f.eastus.azurecontainerapps.io/"
+		},
+	},
+	"inputs": []
 }

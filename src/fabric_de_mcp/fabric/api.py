@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import base64
+import json
 import pathlib
 from typing import Any, Optional
 
@@ -64,17 +65,63 @@ def _request(
     return _json_or_text(resp)
 
 
+def _encode_part(payload: str | dict, *, filename: str) -> dict:
+    if not isinstance(payload, str):
+        payload = json.dumps(payload, ensure_ascii=False)
+    encoded = base64.b64encode(payload.encode("utf-8")).decode("ascii")
+    return {
+        "path": filename,
+        "payloadType": "InlineBase64",
+        "payload": encoded,
+    }
+
+
 def encode_definition(definition_path: str) -> dict:
     path = pathlib.Path(definition_path)
     payload = path.read_text(encoding="utf-8")
-    encoded = base64.b64encode(payload.encode("utf-8")).decode("ascii")
     return {
         "parts": [
-            {
-                "path": path.name,
-                "payloadType": "InlineBase64",
-                "payload": encoded,
-            }
+            _encode_part(payload, filename=path.name),
+        ]
+    }
+
+
+def wrap_definition_payload(definition: dict, *, filename: str) -> dict:
+    return {
+        "parts": [
+            _encode_part(definition, filename=filename),
+        ]
+    }
+
+
+def wrap_pipeline_definition(
+    definition: dict,
+    *,
+    display_name: Optional[str],
+    description: Optional[str],
+) -> dict:
+    platform_payload: dict[str, Any] = {
+        "$schema": (
+            "https://developer.microsoft.com/json-schemas/fabric/"
+            "gitIntegration/platformProperties/2.0.0/schema.json"
+        ),
+        "metadata": {
+            "type": "DataPipeline",
+        },
+        "config": {
+            "version": "2.0",
+            "logicalId": "00000000-0000-0000-0000-000000000000",
+        },
+    }
+    if display_name:
+        platform_payload["metadata"]["displayName"] = display_name
+    if description:
+        platform_payload["metadata"]["description"] = description
+
+    return {
+        "parts": [
+            _encode_part(definition, filename="pipeline-content.json"),
+            _encode_part(platform_payload, filename=".platform"),
         ]
     }
 
@@ -136,6 +183,13 @@ def create_pipeline(
     retries: int,
     backoff: float,
 ) -> dict:
+    definition_payload = definition
+    if definition is not None and "parts" not in definition:
+        definition_payload = wrap_pipeline_definition(
+            definition,
+            display_name=display_name,
+            description=description,
+        )
     resp = create_item(
         workspace_id=workspace_id,
         display_name=display_name,
@@ -143,7 +197,7 @@ def create_pipeline(
         token=token,
         description=description,
         definition_path=definition_path,
-        definition=definition,
+        definition=definition_payload,
         timeout=timeout,
         retries=retries,
         backoff=backoff,
@@ -317,7 +371,20 @@ def update_item_definition(
     if definition_path is not None:
         payload["definition"] = encode_definition(definition_path)
     elif definition is not None:
-        payload["definition"] = definition
+        if "parts" not in definition:
+            if item_type == "DataPipeline":
+                payload["definition"] = wrap_pipeline_definition(
+                    definition,
+                    display_name=display_name,
+                    description=None,
+                )
+            else:
+                payload["definition"] = wrap_definition_payload(
+                    definition,
+                    filename="pipeline-content.json",
+                )
+        else:
+            payload["definition"] = definition
 
     session = build_session(retries=retries, backoff=backoff)
     url = f"{fabric_base_url()}/workspaces/{workspace_id}/items/{item_id}/updateDefinition"

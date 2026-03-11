@@ -90,22 +90,24 @@ tools: list[MCPTool] = [
     MCPStreamableHTTPTool(
         name="fabric_de_mcp",
         url=(os.getenv("FABRIC_DE_MCP_SERVER_URL") or "http://127.0.0.1:8000/mcp").strip(),
+        load_prompts=False,
     )
 ]
-# if fabric_mcp_url := os.getenv("FABRIC_MCP_URL"):
-#     tools.append(
-#         MCPStreamableHTTPTool(
-#             name="Microsoft Fabric MCP",
-#             url=fabric_mcp_url.strip(),
-#         )
-#     )
-
-tools.append(
-    MCPStreamableHTTPTool(
-        name="fabric_mcp",
-        url=(os.getenv("FABRIC_MCP_URL") or "http://127.0.0.1:5001").strip(),
+if fabric_mcp_url := os.getenv("FABRIC_MCP_URL"):
+    tools.append(
+        MCPStreamableHTTPTool(
+            name="Microsoft Fabric MCP",
+            url=fabric_mcp_url.strip(),
+        )
     )
-)
+
+# tools.append(
+#     MCPStreamableHTTPTool(
+#         name="fabric_mcp",
+#         url=(os.getenv("FABRIC_MCP_URL") or "http://127.0.0.1:5001").strip(),
+#         load_prompts=False,
+#     )
+# )
 
 
 
@@ -118,7 +120,7 @@ INSTRUCTIONS = textwrap.dedent(
     If a second MCP server is configured via FABRIC_MCP_URL, you can also
     use the available MCP tools (fabric_mcp).
 
-    Definition-first rule (STRICT):
+    Definition-first rule (STRICT): 
     - If fabric_mcp is available and the user request requires a JSON definition/payload (for example: creating/updating a DataPipeline,
       Notebook, SparkJobDefinition, etc.), you MUST call fabric_mcp tools first to generate and/or validate the required definition.
     - Only after fabric_mcp returns a usable definition should you call fabric_de_mcp tools that create/update resources.
@@ -128,24 +130,23 @@ INSTRUCTIONS = textwrap.dedent(
       - fabric_de_mcp.update_item
     - Exception: you may skip fabric_mcp only if the user already provided an explicit, complete definition (or a server-local definition_path)
       AND the user explicitly told you to proceed.
+    - Use the Fabric MCP tools to generate/validate definitions by referring to resources and definition in this MCP server.
 
     Pipeline creation workflow (REQUIRED when fabric_mcp is available):
-    - Step 1 (definition): Call a fabric_mcp tool to generate or validate a *Fabric DataPipeline definition*.
+    - Step 1 (definition): Call a fabric_mcp tool to generate or validate a *Fabric DataPipeline definition* using the resources and definition available in the tool.
+      - Ensure the copy activity uses valid linkedService settings and make sure Table action in sink is required.
       - The output must be either:
         - a JSON definition object you can pass as the `definition` parameter, OR
         - a file path you can pass as `definition_path` (only if that file exists on the MCP server host).
     - Step 2 (create): Call fabric_de_mcp.create_pipeline (preferred) or fabric_de_mcp.create_item with:
       - workspace_id
       - name
-      - and the `definition`/`definition_path` obtained from Step 1.
-    - Do not call fabric_de_mcp.create_pipeline/create_item until Step 1 has produced a usable definition,
-      unless the user explicitly provides a definition/definition_path and tells you to proceed.
+      - and the `definition`/`definition_path` obtained from Step 1.      
+    - Do not call fabric_de_mcp.create_pipeline/create_item until Step 1 has produced a usable definition, unless the user explicitly provides a definition/definition_path and tells you to proceed.
+    - when definition is given, create_pipeline / create_item tool will wrap raw pipeline JSON into a multi part definition with pipeline-content.json and .platform will be done in the create_pipeline tool
     - If fabric_mcp is NOT configured/available, ask the user for a valid pipeline definition JSON or a definition file path.
-
     Tool use rules:
     - Prefer MCP tool calls over guessing.
-    - Before calling tools that CREATE or UPDATE resources, describe what you plan
-      to do and ask for confirmation unless the user explicitly told you to proceed.
     - Do not claim an item was created/updated unless the MCP tool call succeeded.
     - If a tool call fails, explain what failed and ask for the missing inputs.
 

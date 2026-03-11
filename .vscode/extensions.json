@@ -1,6 +1,7 @@
 {
     "recommendations": [
         "bierner.github-markdown-preview",
-        "mhutchie.git-graph"
+        "mhutchie.git-graph",
+        "fabric.vscode-fabric"
     ]
 }

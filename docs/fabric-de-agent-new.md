@@ -58,8 +58,13 @@ The agent connects to **two** MCP servers via Streamable-HTTP transport:
 
 | Label | Purpose | Endpoint (Azure Container Apps) |
 |---|---|---|
-| **Fabric_de_mcp_server** | Execute Fabric REST operations (CRUD on workspaces, items, pipelines, lakehouses) | `https://<containerapp-fqdn>/mcp` |
-| **fabric_mcp** | Generate, validate & refine Fabric item definitions using docs, APIs & schemas | `https://<containerapp-fqdn>/` |
+| **Fabric_de_mcp_server** | Execute Fabric REST operations (CRUD on workspaces, items, pipelines, lakehouses) | `https://<de-mcp-fqdn>/mcp` |
+| **fabric_mcp** *(external — not part of this repo)* | Generate, validate & refine Fabric item definitions using docs, APIs & schemas | `https://<fabric-mcp-fqdn>/` |
+
+> **Note:** `Fabric_de_mcp_server` is the Container App deployed by this repo
+> (see `infra/main.bicep` / `azure.yaml`). `fabric_mcp` is a separate,
+> externally hosted MCP server that provides Fabric documentation search,
+> definition generation, and API-spec tools.
 
 ### Tool Surface — Fabric DE MCP (`fabric_de_mcp`)
 
@@ -196,8 +201,9 @@ Environment variables (in `src/devui/fabric_de_agent/.env`):
 | Variable | Purpose |
 |---|---|
 | `FABRIC_DE_MCP_SERVER_URL` | Fabric DE MCP endpoint (default `http://127.0.0.1:8000/mcp`) |
-| `FABRIC_MCP_URL` | Fabric MCP endpoint (definition server) |
-| `AZURE_AI_PROJECT_ENDPOINT` | Foundry project endpoint for auth |
+| `FABRIC_MCP_URL` | Fabric MCP endpoint — external definition server (optional) |
+| `AZURE_AI_PROJECT_ENDPOINT` | Foundry project endpoint for model inference |
+| `AZURE_AI_MODEL_DEPLOYMENT_NAME` | Model deployment name (e.g. `gpt-5.3-codex`) |
 | `AZURE_AI_MODEL_DEPLOYMENT_NAME` | Model deployment to use |
 
 ---

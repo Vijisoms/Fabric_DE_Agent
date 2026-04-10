@@ -8,6 +8,7 @@ This folder contains the canonical documentation for this repository (beyond the
 - [DevUI + Agent Framework dataflow](devui-dataflow.md)
 - [MCP internals (tools + REST calls)](mcp-internals.md)
 - [Authentication & authorization](auth.md)
+- [Fabric-de-agent-new (Foundry agent)](fabric-de-agent-new.md)
 
 ## Conventions
 

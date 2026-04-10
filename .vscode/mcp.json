@@ -14,7 +14,7 @@
 		// },
 		"fabric_mcp": {
 			"type": "http",
-			"url": "https://fabric-mcp-newumage-server.politesand-c956bc4f.eastus.azurecontainerapps.io/"
+			"url": "https://fabric-mcp-newumage-server.politesand-c956bc4f.eastus.azurecontainerapps.io/mcp"
 		},
 	},
 	"inputs": []

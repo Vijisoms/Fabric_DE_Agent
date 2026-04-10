@@ -14,6 +14,7 @@ Today, the server supports creating:
 
 - **Lakehouse** items
 - **Data Pipeline** items (optionally with an inline base64 definition)
+- All other fabric items like notebooks, dataflow gen2, Warehouse etc, using below tools
 
 For details on how the two MCP servers (Fabric DE MCP and Fabric MCP) are integrated with a Microsoft Foundry prompt agent, see [Foundry Agent Documentation](docs/fabric-de-agent-new.md).
 

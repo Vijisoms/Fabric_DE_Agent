@@ -15,6 +15,8 @@ Today, the server supports creating:
 - **Lakehouse** items
 - **Data Pipeline** items (optionally with an inline base64 definition)
 
+For details on how the two MCP servers (Fabric DE MCP and Fabric MCP) are integrated with a Microsoft Foundry prompt agent, see [Foundry Agent Documentation](docs/fabric-de-agent-new.md).
+
 ## How it works (high level)
 
 - The MCP server is implemented with `mcp.server.fastmcp.FastMCP`.
